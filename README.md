@@ -17,7 +17,6 @@
   </a>
 
   <a href="https://en.wikipedia.org/wiki/Linux">
-    <img src="https://img.shields.io/badge/Platform-Linux-red">
   </a>
 
 </p>
