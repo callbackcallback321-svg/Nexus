@@ -14,6 +14,17 @@ This guide will help you publish your Nexus project to GitHub.
 
 ## Step-by-Step Instructions
 
+### Step 0: Configure Git (First Time Only)
+
+If this is your first time using Git, configure your identity:
+
+```powershell
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+```
+
+**Important**: Use the same email address associated with your GitHub account!
+
 ### Step 1: Initialize Git Repository
 
 Open PowerShell in your project directory and run:
@@ -133,3 +144,4 @@ Make sure your README.md is in the root directory (it already is), and it will a
 ---
 
 **Need Help?** Check out GitHub's official documentation: https://docs.github.com
+
