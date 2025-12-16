@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <a href="https://github.com/ultrasecurity/Nexus"><img src=".imgs/1demo.png" alt="Nexus"></a>
+  
 
 </h1>
 
